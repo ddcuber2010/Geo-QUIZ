@@ -1,4 +1,10 @@
-<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Gde je to?</title></head><body><title>Gde je to</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gde je to? Serbia geography map quiz</title>
+<meta name="description" content="Click-on-the-map quiz for learning where Serbia's mountains, rivers, lakes, spas and cities are. Elevation map, Cyrillic and Latin names, spaced repetition. By David &amp; Claude.">
+<meta name="theme-color" content="#0b7a4b">
+<meta property="og:title" content="Gde je to? Serbia geography map quiz">
+<meta property="og:description" content="Pin mountains, rivers, lakes, spas and cities on an elevation map. Made by David &amp; Claude.">
+<meta name="author" content="David &amp; Claude">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b7a4b'/%3E%3Cpath d='M16 5a7 7 0 0 0-7 7c0 5 7 14 7 14s7-9 7-14a7 7 0 0 0-7-7z' fill='%23fff'/%3E%3Ccircle cx='16' cy='12' r='2.6' fill='%230b7a4b'/%3E%3C/svg%3E">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
@@ -35,6 +41,29 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font
 .panel{display:flex;flex-direction:column;gap:14px;min-height:0;overflow-y:auto;padding-right:2px}
 h1{margin:0;font-size:28px;font-weight:800;font-stretch:112%;letter-spacing:-.01em;line-height:1.1}
 .sub{color:var(--muted);margin:2px 0 0}
+.intro{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg) center/cover no-repeat;overflow-y:auto}
+.intro::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 55%,transparent),color-mix(in srgb,var(--bg) 86%,transparent))}
+.intro .box{position:relative;width:min(420px,100%);background:color-mix(in srgb,var(--panel) 92%,transparent);border:1px solid var(--line);border-radius:16px;padding:28px 24px 22px;box-shadow:0 10px 40px rgba(0,0,0,.18);text-align:center;backdrop-filter:blur(6px)}
+.intro h1{font-size:44px;margin-bottom:4px}
+.intro .tag{color:var(--muted);margin:0 0 22px}
+.intro .menu{display:flex;flex-direction:column;gap:10px}
+.intro .menu button{padding:13px 16px;font-size:16px}
+.intro .menu .play{font-size:19px;padding:15px 16px}
+.intro .by{margin:18px 0 0;font-size:12px;color:var(--muted)}
+.intro h2{margin:0 0 14px;font-size:22px}
+.intro .left{text-align:left}
+.intro .scores .row2{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)}
+.intro .scores .row2 b{font-family:var(--mono);font-size:18px}
+.intro .scores .cat{margin:12px 0 0;font-size:13px;display:flex;justify-content:space-between}
+.intro .scores .bar{margin-top:4px}
+.intro .miss{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.intro .miss span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+.intro .back{margin-top:18px;width:100%}
+.intro .sup{margin:16px 0 0!important;text-align:center;font-size:14px!important;min-height:44px}
+.intro .left p{margin:0 0 12px;font-size:14px;line-height:1.55}
+.intro .left a{color:inherit;text-underline-offset:2px}
+.credits{margin:2px 0 10px;padding:0 4px;font-size:12px;line-height:1.55;color:var(--muted)}
+.credits a{color:inherit;text-decoration:underline;text-underline-offset:2px}.credits b{color:var(--ink)}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
 .card h2{margin:0 0 8px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -72,8 +101,8 @@ select{font:inherit;border-radius:8px;border:1px solid var(--line);background:va
 .ask b{font-size:26px;font-weight:800;font-stretch:112%;line-height:1.15;overflow-wrap:anywhere}
 .zoom{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:6px}
 .zoom button{width:38px;height:38px;padding:0;font-size:20px;line-height:1}
-.confirm{position:absolute;left:12px;bottom:12px;right:12px;display:flex;justify-content:center;pointer-events:none}
-.confirm button{pointer-events:auto;box-shadow:0 2px 10px rgba(0,0,0,.2);padding:12px 26px;font-size:16px}
+.confirm{position:absolute;left:12px;bottom:52px;right:12px;display:flex;justify-content:center;pointer-events:none}
+.confirm .dbl{white-space:nowrap;background:var(--ink);color:var(--bg);border-radius:999px;padding:9px 18px;font-size:14px;font-weight:600;box-shadow:0 2px 10px rgba(0,0,0,.25)}
 .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .pill{font-family:var(--mono);font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;background:var(--panel);white-space:nowrap}
 svg.relief{--truth:#ffe14d;--guess:#ff5a36;--river:#9fd8ff;--lake:#7cc0f2}
@@ -96,7 +125,10 @@ svg text{font-family:var(--font);font-weight:700;paint-order:stroke;stroke:var(-
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
-
+</head>
+<body>
+<noscript>This quiz needs JavaScript.</noscript>
+<div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="Gde je to?"><div class="box" id="introBox"></div></div>
 <div class="app">
   <div class="mapwrap" id="mapwrap">
     <svg id="map" role="img" aria-label="Map of Serbia and the Balkans. Click to place a pin."></svg>
@@ -109,7 +141,7 @@ svg text{font-family:var(--font);font-weight:700;paint-order:stroke;stroke:var(-
       <button class="tog" data-l="rivers" aria-pressed="true" title="Rivers and lakes for reference">Rivers</button>
     </div>
     <div class="elev" id="elev" aria-hidden="true"><i style="background:linear-gradient(90deg,rgb(86,140,86) 0%,rgb(150,186,110) 20%,rgb(232,222,150) 40%,rgb(208,152,96) 60%,rgb(170,107,74) 80%,rgb(170,131,115) 100%)"></i><span>0</span><span>200</span><span>500</span><span>1000</span><span>1500</span><span>2000+ m</span></div>
-    <div class="confirm" id="confirmWrap" hidden><button class="primary" id="confirm">Confirm pin</button></div>
+    <div class="confirm" id="confirmWrap" hidden><span class="dbl">Double-click to lock in</span></div>
   </div>
   <div class="panel" id="panel"></div>
 </div>
@@ -382,6 +414,9 @@ function onMapClick(ev){
   if(!round||round.state!=='ask')return;
   const [x,y]=toSvg(ev.clientX,ev.clientY);
   round.pending=ll(x,y);
+  const t=performance.now(),lc=round.lastClick;
+  if(lc&&t-lc.t<450&&Math.hypot(ev.clientX-lc.x,ev.clientY-lc.y)<30){round.lastClick=null;confirmGuess();return;}
+  round.lastClick={t,x:ev.clientX,y:ev.clientY};
   drawAsk();
 }
 function drawAsk(){
@@ -394,7 +429,7 @@ function drawAsk(){
 }
 function confirmGuess(){
   if(!round||round.state!=='ask'||!round.pending)return;
-  const e=cur(),g=round.pending,r=distTo(e,g);
+  round.lastClick=null;const e=cur(),g=round.pending,r=distTo(e,g);
   const d=r.d,pts=Math.round(5000*Math.exp(-d/100)*(round.hint?0.6:1));
   const hit=d<=HIT[e.cat];
   round.total+=pts;round.results.push({id:e.id,d,pts,hit,hint:round.hint,g,at:r.at});
@@ -422,7 +457,6 @@ function showStudy(id){
   if(round&&round.state==='ask')return;
   studyId=id;const e=BYID[id];clearOver();drawTruth(e);fitPts(e.pts,320);render();
 }
-document.getElementById('confirm').onclick=confirmGuess;
 addEventListener('keydown',e=>{
   if(e.key==='Enter'){ if(round&&round.state==='ask'&&round.pending)confirmGuess(); else if(round&&round.state==='reveal')nextStep(); }
 });
@@ -434,8 +468,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const BC=['var(--b0)','var(--b1)','var(--b2)','var(--b3)'];
 function stats(){const c=[0,0,0,0];ELEMS.forEach(e=>c[boxOf(e.id)]++);return c;}
 function header(){
-  return `<div class="topbar"><div><h1>Gde je to?</h1><p class="sub">${ELEMS.length} places from your list</p></div>
-  <div class="row"><button class="chip" id="scr" title="Switch between Cyrillic and Latin names">${script==='cyr'?'Ћир':'Lat'}</button>${round&&round.state!=='end'?`<div class="pill">${round.i+(round.state==='reveal'?1:0)}/${round.queue.length} &middot; ${round.total.toLocaleString('en')} pts</div>`:''}</div></div>`;
+  return `<div class="topbar"><div><h1>Gde je to?</h1><p class="sub">${ELEMS.length} places in Serbia &amp; the Balkans</p></div>
+  <div class="row"><button class="chip" id="homeBtn" title="Back to the title screen">Home</button><button class="chip" id="scr" title="Switch between Cyrillic and Latin names">${script==='cyr'?'Ћир':'Lat'}</button>${round&&round.state!=='end'?`<div class="pill">${round.i+(round.state==='reveal'?1:0)}/${round.queue.length} &middot; ${round.total.toLocaleString('en')} pts</div>`:''}</div></div>`;
 }
 function nearHTML(e){
   const n=nearby(e);
@@ -456,9 +490,9 @@ function render(){
   let h=header();
   if(round&&round.state==='ask'){
     const e=cur();ask.hidden=false;document.getElementById('askCat').textContent=CATS[e.cat];document.getElementById('askName').textContent=nm(e);
-    h+=`<div class="card"><h2>Question ${round.i+1}</h2><p style="margin:0 0 10px">Click the map where you think <b>${esc(nm(e))}</b> is${e.cat==='reka'?' (click anywhere on its course)':''}, then confirm.</p>
+    h+=`<div class="card"><h2>Question ${round.i+1}</h2><p style="margin:0 0 10px">Click the map where you think <b>${esc(nm(e))}</b> is${e.cat==='reka'?' (click anywhere on its course)':''}, then double-click to lock it in.</p>
       <div class="row"><button id="hint" class="ghost" ${round.hint?'disabled':''}>${round.hint?'Hint on (&minus;40%)':'Hint (&minus;40%)'}</button><button id="skip" class="ghost">Skip</button><button id="quit" class="ghost">End round</button></div></div>`;
-    h+=`<div class="card"><h2>Tips</h2><p class="sub" style="margin:0">Scroll or pinch to zoom, drag to pan. Enter confirms. Your pin turns the place green after 3 correct answers in a row.</p></div>`;
+    h+=`<div class="card"><h2>Tips</h2><p class="sub" style="margin:0">Scroll or pinch to zoom, drag to pan. Click once to drop a pin (click again to move it), double-click or double-tap to lock it in. Enter works too. Your pin turns the place green after 3 correct answers in a row.</p></div>`;
   } else if(round&&round.state==='reveal'){
     const e=cur(),r=round.results[round.results.length-1];ask.hidden=true;
     const verdict=r.skipped?`<div class="verdict miss">Skipped</div>`:r.hit?`<div class="verdict hit">Got it</div>`:`<div class="verdict miss">Not quite</div>`;
@@ -488,13 +522,14 @@ function render(){
     if(studyId){const e=BYID[studyId];h+=`<div class="card res"><h2>${esc(nm(e))} &middot; ${CATS[e.cat]}</h2>${nearHTML(e)}</div>`;}
     h+=`<div class="card"><h2>All ${n} places</h2><p class="sub" style="margin:0">Tap a name to see where it is. Colors show how well you know it.</p>${libraryHTML(false)}</div>`;
     if(prog.rounds||c[0]<n)h+=`<div class="row"><button class="ghost" id="reset">Reset progress</button></div>`;
+
   }
   panel.replaceChildren(...$(`<div style="display:contents">${h}</div>`).childNodes);
   wire();
 }
 function wire(){
   const on=(id,f)=>{const el=document.getElementById(id);if(el)el.onclick=f;};
-  on('start',()=>startRound());
+  on('start',()=>startRound());on('homeBtn',()=>showIntro('home'));
   on('scr',()=>{script=script==='cyr'?'lat':'cyr';prog.script=script;save();relabel();if(round&&round.state==='ask'){}else if(round&&round.state==='reveal'){clearOver();const e=cur();drawTruth(e);const r=round.results[round.results.length-1];if(!r.skipped){line(gOver,[r.g,r.at],{stroke:'var(--guess)',w:2.5,dash:'7 6'});dot(gOver,r.g[0],r.g[1],{fill:'var(--guess)',r:8});}applyView();}else if(studyId){clearOver();drawTruth(BYID[studyId]);applyView();}render();});
   on('next',nextStep);on('skip',skip);
   on('quit',()=>{round=null;clearOver();fitAll();document.getElementById('confirmWrap').hidden=true;render();});
@@ -503,12 +538,63 @@ function wire(){
   on('retry',()=>startRound(round.results.filter(r=>!r.hit).map(r=>r.id)));
   on('hint',()=>{round.hint=true;drawAsk();render();});
   let confirmReset=false;
-  on('reset',function(){ if(!confirmReset){confirmReset=true;this.textContent='Tap again to erase progress';return;} prog={box:{},best:0,rounds:0};save();studyId=null;clearOver();render(); });
+  on('reset',function(){ if(!confirmReset){confirmReset=true;this.textContent='Tap again to erase progress';return;} prog={box:{},best:0,rounds:0,script:prog.script,layers:prog.layers};save();studyId=null;clearOver();render(); });
   const len=document.getElementById('len');if(len){len.value=String(roundLen);len.onchange=()=>{roundLen=+len.value;render();};}
   panel.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{const k=b.dataset.cat;sel.has(k)?sel.delete(k):sel.add(k);render();});
   panel.querySelectorAll('.el').forEach(b=>b.onclick=()=>showStudy(b.dataset.id));
 }
-fitAll();render();
+const intro=document.getElementById('intro'),introBox=document.getElementById('introBox');
+intro.style.backgroundImage="url('"+RELIEF+"')";
+function showIntro(v){
+  let h='';
+  if(v==='scores'){
+    const c=stats(),n=ELEMS.length;
+    const cats=catOrder.map(k=>{const l=ELEMS.filter(e=>e.cat===k),d=l.filter(e=>boxOf(e.id)===3).length;return `<div class="cat"><span>${CATS[k]}</span><span>${d}/${l.length}</span></div><div class="bar"><i style="width:${d/l.length*100}%;background:${BC[3]}"></i></div>`;}).join('');
+    const weak=ELEMS.filter(e=>boxOf(e.id)===1);
+    h=`<div class="left scores"><h2>Scores</h2>
+      <div class="row2"><span>Best round</span><b>${prog.best.toLocaleString('en')}</b></div>
+      <div class="row2"><span>Rounds played</span><b>${prog.rounds}</b></div>
+      <div class="row2"><span>Locked in</span><b>${c[3]}/${n}</b></div>
+      <div class="row2"><span>Getting there</span><b>${c[2]}</b></div>
+      ${cats}
+      ${weak.length?`<div class="cat" style="margin-top:16px"><span>Needs work</span></div><div class="miss">${weak.map(e=>`<span>${esc(nm(e))}</span>`).join('')}</div>`:''}</div>
+      <button class="back" data-v="home">Back</button>`;
+  }else if(v==='support'){
+    const n=prog.coffees||0;
+    h=`<div class="left"><h2>Support the devs</h2>
+      <p>This game runs on spite, curiosity and a suspicious amount of tea. If you want to help, pick a way below.</p>
+      <p style="font-size:12px;color:var(--muted)">It's a joke. No money is taken, there is no payment here, and please do not send us any.</p>
+      <div class="menu" style="margin-top:14px"><button class="primary" id="coffee">Buy us a virtual coffee</button><button id="vibes">Send good vibes</button><button id="friend">Tell a friend</button></div>
+      <p class="sup" id="supMsg" aria-live="polite">Coffees bought: <b>${n}</b></p></div>
+      <button class="back" data-v="home">Back</button>`;
+  }else if(v==='credits'){
+    h=`<div class="left"><h2>Credits</h2>
+      <p><b>Gde je to?</b> was made by <b>David &amp; Claude</b>.</p>
+      <p>Borders, rivers and lakes: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (public domain).<br>
+      Elevation: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles</a> on AWS Open Data (SRTM, GMTED2010 and others).</p>
+      <p>Place coordinates are approximate and good for learning, not navigating. Your progress is saved only in this browser.</p></div>
+      <button class="back" data-v="home">Back</button>`;
+  }else{
+    h=`<h1>Gde je to?</h1><p class="tag">Learn where things are in Serbia &amp; the Balkans</p>
+      <div class="menu"><button class="primary play" data-v="play">Play</button><button data-v="scores">Scores</button><button data-v="credits">Credits</button><button class="ghost" data-v="support">Support us</button></div>
+      <p class="by">Made by David &amp; Claude</p>`;
+  }
+  introBox.innerHTML=h;intro.hidden=false;intro.scrollTop=0;
+  introBox.querySelectorAll('button[data-v]').forEach(b=>b.onclick=()=>{const t=b.dataset.v;if(t==='play'){intro.hidden=true;}else showIntro(t);});
+  if(v==='support'){
+    const m=document.getElementById('supMsg');
+    const say=t=>{m.innerHTML=t;};
+    const cof=['Coffee received. Brain is now 3% warmer.','Second coffee. Ibar is now technically visible from space.','Third coffee. We can hear colors.','Coffee number %n. Please stop, the kettle is crying.'];
+    document.getElementById('coffee').onclick=()=>{prog.coffees=(prog.coffees||0)+1;save();const n=prog.coffees;say((cof[n-1]||cof[3]).replace('%n',n)+' <b>('+n+')</b>');};
+    const vb=['Vibes delivered. Reception: excellent.','Good vibes arrived, slightly damp from the Morava.','Vibes received by a very confused goat in Zlatibor.'];let vi=0;
+    document.getElementById('vibes').onclick=()=>say(vb[vi++%vb.length]);
+    document.getElementById('friend').onclick=()=>say('Best support there is. Send them the link and challenge their score.');
+  }
+  const f=introBox.querySelector('button');if(f)f.focus({preventScroll:true});
+}
+document.addEventListener('keydown',e=>{if(!intro.hidden&&e.key==='Escape'){const b=introBox.querySelector('.back');if(b)showIntro('home');else intro.hidden=true;}});
+fitAll();render();showIntro('home');
 requestAnimationFrame(fitAll);
 </script>
-</body></html>
+</body>
+</html>
