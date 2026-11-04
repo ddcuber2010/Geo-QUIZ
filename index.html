@@ -50,7 +50,16 @@ h1{margin:0;font-size:28px;font-weight:800;font-stretch:112%;letter-spacing:-.01
 .intro .menu button{padding:13px 16px;font-size:16px}
 .intro .menu .play{font-size:19px;padding:15px 16px}
 .intro .by{margin:18px 0 0;font-size:12px;color:var(--muted)}
-.intro .ver{position:absolute;right:14px;bottom:10px;z-index:1;font:500 11px var(--mono);color:var(--muted);opacity:.85}
+.intro .ver{position:absolute;right:10px;bottom:6px;z-index:1;font:500 11px var(--mono);color:var(--muted);opacity:.9;background:none;border:0;padding:6px 8px;cursor:pointer;text-decoration:underline dotted;box-shadow:none;width:auto;height:auto;min-height:0}
+.lbseg{display:flex;gap:4px;margin:6px 0 10px}.lbseg button{flex:1;padding:7px 4px;font-size:13px}.lbseg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.lbl .r{display:grid;grid-template-columns:30px 1fr auto;gap:8px;padding:7px 6px;border-bottom:1px solid var(--line);align-items:baseline;font-size:15px}.lbl .r b{font-family:var(--mono);font-weight:600}.lbl .r span:first-child{color:var(--muted);font-family:var(--mono)}.lbl .r.me{background:color-mix(in srgb,var(--truth) 14%,transparent);border-radius:6px}
+.lbbox{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:grid;gap:8px}.lbbox .row{display:flex;gap:8px}.lbbox input{flex:1;min-width:0;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}.lbbox small{color:var(--muted)}.lbbox .lberr{color:var(--guess)}
+.pbgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:6px 0 8px}.pbgrid div{border:1px solid var(--line);border-radius:10px;padding:8px 6px;text-align:center}.pbgrid b{display:block;font-family:var(--mono);font-size:17px}.pbgrid span{font-size:11px;color:var(--muted)}
+.trend{font-size:13px;margin:4px 0 6px}.trend .up{color:var(--truth);font-weight:700}.trend .dn{color:var(--guess);font-weight:700}
+.spark{width:100%;height:64px;display:block;margin:4px 0 8px}.spark polyline{fill:none;stroke:var(--truth);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}.spark circle{fill:var(--truth)}.spark line{stroke:var(--line);stroke-width:1}
+.top10 .r{display:grid;grid-template-columns:26px 1fr auto;gap:8px;padding:5px 4px;border-bottom:1px solid var(--line);font-size:14px;align-items:baseline}.top10 .r span:first-child{color:var(--muted);font-family:var(--mono)}.top10 .r b{font-family:var(--mono);font-weight:600}
+.pn{margin:4px 0 10px;padding-left:18px}.pn li{margin:2px 0}.intro h3{margin:14px 0 2px;font-size:15px}
+
 .intro h2{margin:0 0 14px;font-size:22px}
 .intro .left{text-align:left}
 .intro .scores .row2{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)}
@@ -189,7 +198,7 @@ body.fs .elev{bottom:calc(var(--ph,130px) + 8px);left:8px}
 <script data-goatcounter="https://ddcuber2010.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
-<div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="Gde je to?"><span class="ver">v1.0.1</span><div class="box" id="introBox"><h1>Gde je to?</h1><p class="tag">This game needs a real browser. If you opened this file from WhatsApp or a file preview, open it in Chrome or Safari instead, or use the hosted link.</p></div></div>
+<div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="Gde je to?"><button class="ver" id="verBtn" title="Patch notes">v1.1.0</button><div class="box" id="introBox"><h1>Gde je to?</h1><p class="tag">This game needs a real browser. If you opened this file from WhatsApp or a file preview, open it in Chrome or Safari instead, or use the hosted link.</p></div></div>
 <div class="app">
   <div class="mapwrap" id="mapwrap">
     <svg id="map" role="img" aria-label="Map of Serbia and the Balkans. Click to place a pin."></svg>
@@ -214,6 +223,7 @@ const RELIEF='data:image/webp;base64,UklGRk6kBQBXRUJQVlA4WAoAAAAQAAAARAYAjwYAQUx
 </script>
 <script>
 // ---------- data: 81 elements (lat, lon). Rivers are polylines, ordered downstream. Coordinates are approximate. ----------
+const LB_URL='https://geo-quiz-1c39a-default-rtdb.europe-west1.firebasedatabase.app';const VERSION='1.1.0';
 const CATS={planina:'Mountain',reka:'River',jezero:'Lake',banja:'Spa',grad:'City'};
 const HIT={grad:20,reka:12,planina:30,jezero:15,banja:20}; // km that counts as "known"
 const P=(id,name,cat,lat,lon)=>({id,name,cat,pts:[[lat,lon]]});
@@ -589,12 +599,15 @@ function pickQueue(ids,n){
 function startRound(ids){
   const p=ids||pickQueue(pool().map(e=>e.id),roundLen);
   if(!p.length)return;
-  round={queue:p,i:0,total:0,results:[],pending:null,hint:false,hintOff:[0,0],state:'ask'};
+  round={queue:p,i:0,total:0,results:[],pending:null,hint:false,hintOff:[0,0],state:'ask',key:(!ids&&sel.size===Object.keys(CATS).length&&[10,20,ELEMS.length].includes(p.length))?lbKey(p.length):null,lb:null};
   studyId=null;nextQ();
 }
 function nextQ(){
   clearOver();
-  if(round.i>=round.queue.length){round.state='end';prog.rounds++;prog.best=Math.max(prog.best,round.total);save();fitAll();render();return;}
+  if(round.i>=round.queue.length){round.state='end';prog.rounds++;prog.best=Math.max(prog.best,round.total);
+    {const k=round.key||'x',st=histStats(k);round.cmp={n:st.n,pb:st.pb,avg:st.avg};
+     (prog.hist=prog.hist||[]).push({t:Date.now(),k,s:round.total,h:round.results.filter(r=>r.hit).length,q:round.queue.length});if(prog.hist.length>300)prog.hist=prog.hist.slice(-300);}
+    save();fitAll();render();return;}
   round.state='ask';round.pending=null;round.hint=false;
   const e=BYID[round.queue[round.i]];
   const ang=Math.random()*Math.PI*2,rr=60/110*Math.random()+0.25;
@@ -659,6 +672,59 @@ addEventListener('keydown',e=>{
 // ---------- panel rendering ----------
 const panel=document.getElementById('panel');
 const $=(h)=>{const t=document.createElement('template');t.innerHTML=h.trim();return t.content.firstChild;};
+const LB_ON=!!LB_URL;
+const boardMax=k=>k==='n10'?50000:k==='n20'?100000:ELEMS.length*5000;
+let scBoard='n10';
+function histStats(k){
+  const a=(prog.hist||[]).filter(r=>r.k===k),sc=a.map(r=>r.s),n=sc.length;
+  const mean=x=>x.length?x.reduce((p,q)=>p+q,0)/x.length:0;
+  return {a,sc,n,pb:n?Math.max(...sc):0,avg:Math.round(mean(sc)),last:mean(sc.slice(-5)),prev:mean(sc.slice(-10,-5)),hasPrev:sc.length>5};
+}
+function sparkSVG(sc,max){
+  const w=300,h=60,p=6,pts=sc.slice(-20);if(pts.length<2)return '';
+  const X=i=>p+i*(w-2*p)/(pts.length-1),Y=v=>h-p-(v/max)*(h-2*p);
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="${h-p}" x2="${w}" y2="${h-p}"/><polyline points="${pts.map((v,i)=>X(i).toFixed(1)+','+Y(v).toFixed(1)).join(' ')}"/><circle cx="${X(pts.length-1).toFixed(1)}" cy="${Y(pts[pts.length-1]).toFixed(1)}" r="3.5"/></svg>`;
+}
+function cmpLine(r){
+  const c=r.cmp;if(!c||!r.key)return '';
+  const f=v=>Math.round(v).toLocaleString('en');
+  if(!c.n)return `<div class="sub" style="margin-top:6px">First ${lbLabel[r.key]} round: this is your starting score.</div>`;
+  if(r.total>c.pb)return `<div class="sub" style="margin-top:6px"><b style="color:var(--truth)">New personal best!</b> Previous best ${f(c.pb)}.</div>`;
+  const d=Math.round(r.total-c.avg);
+  return `<div class="sub" style="margin-top:6px">Your best ${f(c.pb)} &middot; average ${f(c.avg)} (<b style="color:var(${d>=0?'--truth':'--guess'})">${d>=0?'+':'&minus;'}${f(Math.abs(d))}</b> vs average)</div>`;
+}
+const lbKey=n=>n===ELEMS.length?'nall':'n'+n;
+const lbLabel={n10:'10 questions',n20:'20 questions',nall:'All places'};
+let lbBoard='n10';
+const lbName=()=>{try{return localStorage.getItem('gdejeto-name')||'';}catch(e){return '';}};
+const lbMine=()=>{try{return JSON.parse(localStorage.getItem('gdejeto-mine')||'[]');}catch(e){return [];}};
+async function lbFetch(key){
+  const r=await fetch(LB_URL+'/scores/'+key+'.json?orderBy=%22score%22&limitToLast=25');
+  if(!r.ok)throw new Error('http '+r.status);
+  const o=(await r.json())||{};
+  return Object.entries(o).map(([id,v])=>({id,name:String((v&&v.name)||'?').slice(0,16),score:+(v&&v.score)||0})).sort((a,b)=>b.score-a.score).slice(0,20);
+}
+async function lbSubmit(raw){
+  const rd=round;if(!rd||!rd.key||(rd.lb&&(rd.lb.st==='done'||rd.lb.st==='sending')))return;
+  const name=String(raw||'').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,16);
+  if(!name){rd.lb={st:'noname'};render();return;}
+  rd.lb={st:'sending'};render();
+  try{
+    const r=await fetch(LB_URL+'/scores/'+rd.key+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,score:rd.total,t:Date.now(),v:VERSION})});
+    if(!r.ok)throw new Error('http '+r.status);
+    const j=await r.json();
+    try{localStorage.setItem('gdejeto-name',name);const m=lbMine();m.push(j.name);localStorage.setItem('gdejeto-mine',JSON.stringify(m.slice(-50)));}catch(e){}
+    let rank=null;try{const l=await lbFetch(rd.key);const i=l.findIndex(x=>x.id===j.name);rank=i>=0?i+1:null;}catch(e){}
+    rd.lb={st:'done',rank};
+  }catch(e){rd.lb={st:'err'};}
+  render();
+}
+function lbBlock(){
+  if(!LB_ON||!round.key||!round.total)return '';
+  const s=round.lb||{st:'idle'};
+  if(s.st==='done')return `<div class="lbbox"><b>Saved to the leaderboard${s.rank?' (#'+s.rank+' in '+lbLabel[round.key]+')':''}.</b><div class="row"><button id="lbopen">View leaderboard</button></div></div>`;
+  return `<div class="lbbox"><b>Add your score to the leaderboard</b><div class="row"><input id="lbname" maxlength="16" placeholder="Your name" value="${esc(lbName())}" autocomplete="nickname"><button class="primary" id="lbsubmit" ${s.st==='sending'?'disabled':''}>${s.st==='sending'?'Saving...':'Submit'}</button></div>${s.st==='err'?'<small class="lberr">Could not save. Check your connection and try again.</small>':''}${s.st==='noname'?'<small class="lberr">Type a name first.</small>':''}<small>Your name and score become public. Please do not use your full real name.</small></div>`;
+}
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const BC=['var(--b0)','var(--b1)','var(--b2)','var(--b3)'];
 function stats(){const c=[0,0,0,0];ELEMS.forEach(e=>c[boxOf(e.id)]++);return c;}
@@ -704,9 +770,9 @@ function render(){
     ask.hidden=true;
     const hits=round.results.filter(r=>r.hit).length,max=round.queue.length*5000;
     const missed=round.results.filter(r=>!r.hit).map(r=>r.id);
-    h+=`<div class="card res"><h2>Round complete</h2><div class="big">${round.total.toLocaleString('en')}</div><div class="pts">of ${max.toLocaleString('en')} &middot; ${hits}/${round.queue.length} located &middot; best ${prog.best.toLocaleString('en')}</div>
+    h+=`<div class="card res"><h2>Round complete</h2><div class="big">${round.total.toLocaleString('en')}</div><div class="pts">of ${max.toLocaleString('en')} &middot; ${hits}/${round.queue.length} located &middot; best ${prog.best.toLocaleString('en')}</div>${cmpLine(round)}
       <ul class="list">${round.results.map(r=>`<li><span>${r.hit?'&#10003;':'&#10007;'} ${esc(nm(BYID[r.id]))}</span><span>${r.d==null?'skipped':(r.d<10?r.d.toFixed(1):Math.round(r.d))+' km'}</span></li>`).join('')}</ul>
-      <div class="row" style="margin-top:14px"><button class="primary" id="again">New round</button>${missed.length?`<button id="retry">Retry ${missed.length} missed</button>`:''}<button class="ghost" id="home">Menu</button></div></div>`;
+      <div class="row" style="margin-top:14px"><button class="primary" id="again">New round</button>${missed.length?`<button id="retry">Retry ${missed.length} missed</button>`:''}<button class="ghost" id="home">Menu</button></div>${lbBlock()}</div>`;
   } else {
     ask.hidden=true;
     const c=stats(),n=ELEMS.length;
@@ -734,6 +800,9 @@ function wire(){
   on('quit',()=>{round=null;clearOver();fitAll();document.getElementById('confirmWrap').hidden=true;render();});
   on('home',()=>{round=null;clearOver();fitAll();render();});
   on('again',()=>startRound());
+  on('lbsubmit',()=>{const el=document.getElementById('lbname');lbSubmit(el?el.value:'');});
+  on('lbopen',()=>showIntro('lb',round&&round.key));
+  const ln=document.getElementById('lbname');if(ln)ln.onkeydown=e=>{if(e.key==='Enter')lbSubmit(ln.value);e.stopPropagation();};
   on('retry',()=>startRound(round.results.filter(r=>!r.hit).map(r=>r.id)));
   on('hint',()=>{round.hint=true;drawAsk();render();});
   let confirmReset=false;
@@ -743,8 +812,11 @@ function wire(){
   panel.querySelectorAll('.el').forEach(b=>b.onclick=()=>showStudy(b.dataset.id));
 }
 const intro=document.getElementById('intro'),introBox=document.getElementById('introBox');
+const verBtn=document.getElementById('verBtn');if(verBtn)verBtn.onclick=()=>showIntro('notes');
 intro.style.backgroundImage="url('"+WPHYS+"')";
-function showIntro(v){
+function showIntro(v,arg){
+  if(v==='lb'&&arg)lbBoard=arg;
+  if(v==='scores'&&arg)scBoard=arg;
   let h='';
   if(v==='scores'){
     const c=stats(),n=ELEMS.length;
@@ -754,9 +826,26 @@ function showIntro(v){
       <div class="row2"><span>Best round</span><b>${prog.best.toLocaleString('en')}</b></div>
       <div class="row2"><span>Rounds played</span><b>${prog.rounds}</b></div>
       <div class="row2"><span>Locked in</span><b>${c[3]}/${n}</b></div>
+      ${(()=>{const k=scBoard,st=histStats(k),fm=v=>Math.round(v).toLocaleString('en');
+        const tabs=['n10','n20','nall'].map(x=>`<button data-s="${x}" aria-pressed="${x===k}">${lbLabel[x]}</button>`).join('');
+        if(!st.n)return `<h3 style="margin:16px 0 4px">Personal bests</h3><div class="lbseg">${tabs}</div><p class="sub">No ${lbLabel[k]} rounds yet. Play one with all categories selected and your best, average and trend will show up here.</p>`;
+        const tr=st.hasPrev?(()=>{const d=Math.round(st.last-st.prev);return `<div class="trend">Last 5 rounds average ${fm(st.last)}: <span class="${d>=0?'up':'dn'}">${d>=0?'&uarr; +':'&darr; &minus;'}${fm(Math.abs(d))}</span> vs the 5 before.</div>`;})():`<div class="trend sub">Play more than 5 rounds to see your trend.</div>`;
+        const top=[...st.a].sort((x,y)=>y.s-x.s).slice(0,10).map((r,i)=>{const d=new Date(r.t);return `<div class="r"><span>${i+1}</span><span>${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}</span><b>${r.s.toLocaleString('en')}</b></div>`;}).join('');
+        return `<h3 style="margin:16px 0 4px">Personal bests</h3><div class="lbseg">${tabs}</div>
+          <div class="pbgrid"><div><b>${fm(st.pb)}</b><span>Best (PB)</span></div><div><b>${fm(st.avg)}</b><span>Average</span></div><div><b>${st.n}</b><span>Rounds</span></div></div>
+          ${tr}${sparkSVG(st.sc,boardMax(k))}<div class="top10">${top}</div>`;})()}
       <div class="row2"><span>Getting there</span><b>${c[2]}</b></div>
       ${cats}
       ${weak.length?`<div class="cat" style="margin-top:16px"><span>Needs work</span></div><div class="miss">${weak.map(e=>`<span>${esc(nm(e))}</span>`).join('')}</div>`:''}</div>
+      <button class="back" data-v="home">Back</button>`;
+  }else if(v==='lb'){
+    h=`<div class="left"><h2>Leaderboard</h2><div class="lbseg">${['n10','n20','nall'].map(k=>`<button data-b="${k}" aria-pressed="${k===lbBoard}">${lbLabel[k]}</button>`).join('')}</div><div class="lbl" id="lbList"><p class="sub">Loading...</p></div><p class="sub" style="font-size:12px">Only full rounds with every category selected count. Hints are allowed.</p></div>
+      <button class="back" data-v="home">Back</button>`;
+  }else if(v==='notes'){
+    h=`<div class="left"><h2>Patch notes</h2>
+      <h3>v1.1.0</h3><ul class="pn"><li>Personal stats: best (PB), average, trend and top 10 rounds on the Scores page, and how each round compares to your average</li><li>Leaderboard: add your name after a full round</li><li>Patch notes (you are looking at them)</li></ul>
+      <h3>v1.0.1</h3><ul class="pn"><li>Tami&scaron; added as a river (18 rivers, 81 places)</li><li>Full-screen map on phones</li><li>Opacity slider for the topography layer</li><li>Bolder borders, Serbia and Kosovo and Metohija shown as one country</li><li>Many more rivers and villages from OpenStreetMap</li><li>Version number and anonymous player codes for visit counts</li></ul>
+      <h3>v1.0.0</h3><ul class="pn"><li>First release: 80 places in 5 categories with progress tracking</li><li>Physical and classic maps, layers, double-click to lock in a pin</li></ul></div>
       <button class="back" data-v="home">Back</button>`;
   }else if(v==='rules'){
     h=`<div class="left"><h2>How it works</h2>
@@ -776,18 +865,28 @@ function showIntro(v){
       <button class="back" data-v="home">Back</button>`;
   }else if(v==='credits'){
     h=`<div class="left"><h2>Credits</h2>
-      <p><b>Gde je to?</b> was made by <b>David &amp; Claude</b>. Version 1.0.1.</p>
+      <p><b>Gde je to?</b> was made by <b>David &amp; Claude</b>. Version 1.1.0.</p>
       <p>Borders, rivers and lakes: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (public domain).<br>
       Roads, districts and big cities: Natural Earth. Towns: <a href="https://www.geonames.org" target="_blank" rel="noopener">GeoNames</a> (CC BY 4.0). Extra rivers and villages: &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors (ODbL). Elevation: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles</a> on AWS Open Data (SRTM, GMTED2010 and others).</p>
-      <p>Place coordinates are approximate and good for learning, not navigating. Your progress is saved only in this browser. Anonymous visit counts are collected with GoatCounter (no cookies). A random anonymous player code (no name or personal data) is kept in your browser so repeat visits can be counted.</p></div>
+      <p>Place coordinates are approximate and good for learning, not navigating. Your progress is saved only in this browser. Anonymous visit counts are collected with GoatCounter (no cookies). A random anonymous player code (no name or personal data) is kept in your browser so repeat visits can be counted.${LB_ON?' If you add your name to the leaderboard, your name and score are stored publicly in a Google Firebase database.':''}</p></div>
       <button class="back" data-v="home">Back</button>`;
   }else{
     h=`<h1>Gde je to?</h1><p class="tag">Learn where things are in Serbia &amp; the Balkans</p>
-      <div class="menu"><button class="primary play" data-v="play">Play</button><button data-v="scores">Scores</button><button data-v="credits">Credits</button><button data-v="rules">How it works</button><button class="ghost" data-v="support">Support us</button></div>
+      <div class="menu"><button class="primary play" data-v="play">Play</button>${LB_ON?'<button data-v="lb">Leaderboard</button>':''}<button data-v="scores">Scores</button><button data-v="credits">Credits</button><button data-v="rules">How it works</button><button class="ghost" data-v="support">Support us</button></div>
       <p class="by">Made by David &amp; Claude</p>`;
   }
   introBox.innerHTML=h;intro.hidden=false;intro.scrollTop=0;
   introBox.querySelectorAll('button[data-v]').forEach(b=>b.onclick=()=>{const t=b.dataset.v;if(t==='play'){intro.hidden=true;}else showIntro(t);});
+  if(v==='scores')introBox.querySelectorAll('.lbseg button').forEach(b=>b.onclick=()=>showIntro('scores',b.dataset.s));
+  if(v==='lb'){
+    const list=document.getElementById('lbList');
+    introBox.querySelectorAll('.lbseg button').forEach(b=>b.onclick=()=>showIntro('lb',b.dataset.b));
+    lbFetch(lbBoard).then(rows=>{
+      if(!document.getElementById('lbList')||list!==document.getElementById('lbList'))return;
+      const mine=lbMine();
+      list.innerHTML=rows.length?rows.map((r,i)=>`<div class="r${mine.includes(r.id)?' me':''}"><span>${i+1}</span><span>${esc(r.name)}</span><b>${r.score.toLocaleString('en')}</b></div>`).join(''):'<p class="sub">No scores yet. Be the first!</p>';
+    }).catch(()=>{list.innerHTML='<p class="sub">Could not load the leaderboard. Check your connection.</p>';});
+  }
   if(v==='support'){
     const m=document.getElementById('supMsg');
     const say=t=>{m.innerHTML=t;};
