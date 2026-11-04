@@ -50,6 +50,7 @@ h1{margin:0;font-size:28px;font-weight:800;font-stretch:112%;letter-spacing:-.01
 .intro .menu button{padding:13px 16px;font-size:16px}
 .intro .menu .play{font-size:19px;padding:15px 16px}
 .intro .by{margin:18px 0 0;font-size:12px;color:var(--muted)}
+.intro .ver{position:absolute;right:14px;bottom:10px;z-index:1;font:500 11px var(--mono);color:var(--muted);opacity:.85}
 .intro h2{margin:0 0 14px;font-size:22px}
 .intro .left{text-align:left}
 .intro .scores .row2{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)}
@@ -188,7 +189,7 @@ body.fs .elev{bottom:calc(var(--ph,130px) + 8px);left:8px}
 <script data-goatcounter="https://ddcuber2010.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
-<div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="Gde je to?"><div class="box" id="introBox"><h1>Gde je to?</h1><p class="tag">This game needs a real browser. If you opened this file from WhatsApp or a file preview, open it in Chrome or Safari instead, or use the hosted link.</p></div></div>
+<div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="Gde je to?"><span class="ver">v1.0.1</span><div class="box" id="introBox"><h1>Gde je to?</h1><p class="tag">This game needs a real browser. If you opened this file from WhatsApp or a file preview, open it in Chrome or Safari instead, or use the hosted link.</p></div></div>
 <div class="app">
   <div class="mapwrap" id="mapwrap">
     <svg id="map" role="img" aria-label="Map of Serbia and the Balkans. Click to place a pin."></svg>
@@ -226,7 +227,7 @@ const ELEMS=[
  P('gledicke','Гледићке планине','planina',43.78,20.92),P('sokolske','Сокољске планине','planina',44.28,19.46),P('avala','Авала','planina',44.69,20.51),
  P('jelica','Јелица','planina',43.88,20.22),P('stolovi','Столови','planina',43.61,20.61),P('ozren','Озрен','planina',43.62,21.80),
  P('suvapl','Сува планина','planina',43.20,22.15),P('maljen','Маљен','planina',44.12,20.00),
- // rivers (17)
+ // rivers (18)
  R('timok','Тимок',[[43.573, 22.252], [43.901, 22.299], [44.071, 22.427], [44.208, 22.639]]),
  R('lim','Лим',[[42.604, 19.917], [42.824, 19.858], [43.036, 19.747], [43.388, 19.636], [43.583, 19.526], [43.794, 19.281]]),
  R('uvac','Увац',[[43.25,20.1],[43.35,19.95],[43.46,19.88],[43.55,19.7],[43.58,19.52]]),
@@ -244,6 +245,7 @@ const ELEMS=[
  R('velikamorava','Велика Морава',[[43.644, 21.368], [43.943, 21.357], [44.195, 21.155], [44.313, 21.12], [44.68, 21.053]]),
  R('tisa','Тиса',[[47.167, 20.198], [46.715, 20.143], [46.252, 20.143], [45.936, 20.104], [45.196, 20.317]]),
  R('begej','Бегеј',[[45.75,20.75],[45.55,20.55],[45.38,20.39],[45.22,20.28]]),
+ R('tamis','Тамиш',[[45.431, 20.857], [45.382, 20.87], [45.353, 20.681], [45.21, 20.573], [45.209, 20.492], [45.126, 20.455], [45.104, 20.42], [45.035, 20.428], [44.98, 20.521], [44.949, 20.535], [44.944, 20.609], [44.855, 20.637]]),
  // lakes (14)
  P('djerdapsko','Ђердапско језеро','jezero',44.60,21.95),P('bovan','Бованско језеро','jezero',43.67,21.65),P('vlasinsko','Власинско језеро','jezero',42.70,22.32),
  P('gruzansko','Гружанско језеро','jezero',43.97,20.78),P('zavojsko','Завојско језеро','jezero',43.20,22.85),P('perucac','Перућац','jezero',44.00,19.45),
@@ -316,6 +318,9 @@ const STORE='gdejeto-v1';
 let prog={box:{},best:0,rounds:0};
 try{const s=localStorage.getItem(STORE);if(s)prog=Object.assign(prog,JSON.parse(s));}catch(e){}
 if(prog.script==='lat')script='lat';
+(function(){try{if(!document.querySelector('script[data-goatcounter]'))return;let id=localStorage.getItem('gdejeto-uid');
+  if(!id){id=Math.random().toString(36).slice(2,8);localStorage.setItem('gdejeto-uid',id);}
+  let tries=0;const send=()=>{if(window.goatcounter&&window.goatcounter.count){window.goatcounter.count({path:'player/'+id,title:'Player '+id,event:true});}else if(tries++<30)setTimeout(send,500);};send();}catch(e){}})();
 const save=()=>{try{localStorage.setItem(STORE,JSON.stringify(prog));}catch(e){}};
 const boxOf=id=>prog.box[id]||0;
 if(!prog.layers)prog.layers={rivers:false,topo:false,cities:false,style:'physical'};
@@ -771,10 +776,10 @@ function showIntro(v){
       <button class="back" data-v="home">Back</button>`;
   }else if(v==='credits'){
     h=`<div class="left"><h2>Credits</h2>
-      <p><b>Gde je to?</b> was made by <b>David &amp; Claude</b>.</p>
+      <p><b>Gde je to?</b> was made by <b>David &amp; Claude</b>. Version 1.0.1.</p>
       <p>Borders, rivers and lakes: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (public domain).<br>
       Roads, districts and big cities: Natural Earth. Towns: <a href="https://www.geonames.org" target="_blank" rel="noopener">GeoNames</a> (CC BY 4.0). Extra rivers and villages: &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors (ODbL). Elevation: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles</a> on AWS Open Data (SRTM, GMTED2010 and others).</p>
-      <p>Place coordinates are approximate and good for learning, not navigating. Your progress is saved only in this browser. Anonymous visit counts are collected with GoatCounter (no cookies).</p></div>
+      <p>Place coordinates are approximate and good for learning, not navigating. Your progress is saved only in this browser. Anonymous visit counts are collected with GoatCounter (no cookies). A random anonymous player code (no name or personal data) is kept in your browser so repeat visits can be counted.</p></div>
       <button class="back" data-v="home">Back</button>`;
   }else{
     h=`<h1>Gde je to?</h1><p class="tag">Learn where things are in Serbia &amp; the Balkans</p>
