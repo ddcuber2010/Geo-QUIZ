@@ -234,7 +234,7 @@ body.fs .elev{bottom:calc(var(--ph,130px) + 8px);left:8px}
 <script data-goatcounter="https://ddcuber2010.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
-<div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="Gde je to?"><button class="ver" id="verBtn" title="Patch notes">v1.2.0</button><div class="brand"><img id="brandImg" alt="David"><div class="t"><small>Made by</small><b>David &amp; Claude</b></div></div><div class="box" id="introBox"><h1>Gde je to?</h1><p class="tag">This game needs a real browser. If you opened this file from WhatsApp or a file preview, open it in Chrome or Safari instead, or use the hosted link.</p></div></div>
+<div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="Gde je to?"><button class="ver" id="verBtn" title="Patch notes">v1.2.1</button><div class="brand"><img id="brandImg" alt="David"><div class="t"><small>Made by</small><b>David &amp; Claude</b></div></div><div class="box" id="introBox"><h1>Gde je to?</h1><p class="tag">This game needs a real browser. If you opened this file from WhatsApp or a file preview, open it in Chrome or Safari instead, or use the hosted link.</p></div></div>
 <div class="app">
   <div class="mapwrap" id="mapwrap">
     <svg id="map" role="img" aria-label="Map of Serbia and the Balkans. Click to place a pin."></svg>
@@ -260,7 +260,7 @@ const RELIEF='data:image/webp;base64,UklGRk6kBQBXRUJQVlA4WAoAAAAQAAAARAYAjwYAQUx
 </script>
 <script>
 // ---------- data: 81 elements (lat, lon). Rivers are polylines, ordered downstream. Coordinates are approximate. ----------
-const LB_URL='https://geo-quiz-1c39a-default-rtdb.europe-west1.firebasedatabase.app';const VERSION='1.2.0';
+const LB_URL='https://geo-quiz-1c39a-default-rtdb.europe-west1.firebasedatabase.app';const VERSION='1.2.1';
 const CATS={planina:'Mountain',reka:'River',jezero:'Lake',banja:'Spa',grad:'City'};
 const HIT={grad:20,reka:12,planina:30,jezero:15,banja:20}; // km that counts as "known"
 const P=(id,name,cat,lat,lon)=>({id,name,cat,pts:[[lat,lon]]});
@@ -560,6 +560,8 @@ function setLayers(keep){
   [imgWP,imgWC,imgEl,imgC].forEach(i=>i.style.opacity=op);
   imgWP.style.display=imgEl.style.display=L.topo&&!cl?'':'none';imgWC.style.display=imgC.style.display=L.topo&&cl?'':'none';
   rvEl.style.display=lkEl.style.display=rmOth.style.display=rmDan.style.display=L.rivers?'':'none';distEl.style.display=L.dist?'':'none';rvX.style.display=L.rivers?'':'none';gNat.style.display=L.nature?'':'none';gDim.style.display=L.focus&&L.topo?'':'none';gRoad.style.display=gCity.style.display=L.cities?'':'none';
+  if(qlWanted()){gRoad.style.display=gCity.style.display=gNat.style.display='none';}
+  try{qlVis=qlWanted();gQuiz.style.display=qlVis?'':'none';}catch(_){}
   lg.classList.toggle('on',!!L.topo);lg.classList.toggle('bands',L.topo&&cl);
   lg.innerHTML=cl?BANDS.map(b=>`<div><i style="background:rgb(${b[1]})"></i><span>${b[0]}</span></div>`).join('')+'<em>metres</em>':LEGEND_PHYS;
   applyView();if(!keep)buildOpts();}
@@ -574,6 +576,7 @@ function buildOpts(){
     <div class="ind">${seg('style',L.style,[['physical','Physical'],['classic','Classic']])}</div>
     <div class="ind sl${L.topo?'':' off'}"><span>Opacity</span><input type="range" id="opSl" min="15" max="100" step="5" value="${Math.round(L.opacity*100)}" aria-label="Topography opacity"><b id="opVal">${Math.round(L.opacity*100)}%</b></div>
     <label><input type="checkbox" data-c="cities" ${L.cities?'checked':''}>Cities &amp; roads</label>
+    <label><input type="checkbox" data-c="quizonly" ${L.quizonly?'checked':''}>Show all ${ELEMS.length} quiz places on the map</label>
     <label class="ind"><input type="checkbox" data-c="spoil" ${L.spoil?'checked':''}>Show quiz places (spoilers)</label>
     <h3>Labels</h3>${seg('labels',prog.labels,[['all','Show all'],['zoom','Reveal by zoom']])}
     <label><input type="checkbox" data-c="nature" ${L.nature?'checked':''}>Natural features</label>
@@ -599,7 +602,7 @@ setLayers();
 new ResizeObserver(()=>applyView()).observe(wrap);
 
 // ---------- overlay drawing ----------
-const clearOver=()=>{gOver.replaceChildren();marks=[updatePlaces];allOn=false;};
+const clearOver=()=>{gOver.replaceChildren();marks=[updatePlaces,updateQuiz];allOn=false;};
 function dot(parent,lat,lon,{fill,stroke='#fff',r=7,ring=false,label,labelFill}={}){
   const [x,y]=xy(lat,lon);
   const c=mk('circle',{cx:x,cy:y,fill:ring?'none':fill,stroke:ring?fill:stroke,'stroke-width':ring?3:2,'vector-effect':'non-scaling-stroke'},parent);
@@ -810,6 +813,7 @@ function setFs(){const on=!!(prog.fs&&round);document.body.classList.toggle('fs'
   const b=document.getElementById('fsBtn');if(b)b.textContent=prog.fs?'Exit full':'Full screen';
   requestAnimationFrame(()=>{const p=document.getElementById('panel');document.documentElement.style.setProperty('--ph',(on&&p?p.offsetHeight:0)+'px');});}
 function render(){
+  syncQuiz();
   if(round&&round.pvp&&pvp){pvRender();return;}
   setFs();
   const ask=document.getElementById('ask');
@@ -920,7 +924,8 @@ function showIntro(v,arg){
       <button class="back" data-v="home">Back</button>`;
   }else if(v==='notes'){
     h=`<div class="left"><h2>Patch notes</h2>
-      <h3>v1.2.0</h3><ul class="pn"><li>Play with friends: make a room, share the 4-character code and play together. Three modes: First to find, Closest pin and a 3-minute blitz</li><li>Map of all places: show every place on the map at once (title screen, menu and Home panel), colored by category</li><li>Every category has its own color</li><li>Practice filters: choose a region (west, east, north, south, centre, outside Serbia), a starting letter, or only what you do not know yet</li><li>Hit radius setting in Options: x1.5 by default on phones, so it is easier to count as located</li></ul>
+      <h3>v1.2.1</h3><ul class="pn"><li>Fixed the Show all 81 quiz places toggle: it now appears right away, ignores your practice filters and stays on during rounds</li></ul>
+      <h3>v1.2.0</h3><ul class="pn"><li>Play with friends: make a room, share the 4-character code and play together. Three modes: First to find, Closest pin and a 3-minute blitz</li><li>Map of all places: show every place on the map at once (title screen, menu and Home panel), colored by category</li><li>Every category has its own color</li><li>New toggle in Options: Show all quiz places on the map (all 81, colored by category, works any time including during a round)</li><li>Practice filters: choose a region (west, east, north, south, centre, outside Serbia), a starting letter, or only what you do not know yet</li><li>Hit radius setting in Options: x1.5 by default on phones, so it is easier to count as located</li></ul>
       <h3>v1.1.2</h3><ul class="pn"><li>Svrljig and about 100 other Serbian towns are now shown on the map earlier (bigger towns appear without zooming in so far)</li></ul>
       <h3>v1.1.1</h3><ul class="pn"><li>Share button: send the game to friends (WhatsApp, Telegram, Viber or copy the link), and share your score after a round</li><li>Bigger David &amp; Claude credit with a photo on the title screen and the map</li><li>Nicer link preview when the game link is sent in chats</li></ul>
       <h3>v1.1.0</h3><ul class="pn"><li>Personal stats: best (PB), average, trend and top 10 rounds on the Scores page, and how each round compares to your average</li><li>Leaderboard: add your name after a full round</li><li>Patch notes (you are looking at them)</li></ul>
@@ -946,7 +951,7 @@ function showIntro(v,arg){
       <button class="back" data-v="home">Back</button>`;
   }else if(v==='credits'){
     h=`<div class="left"><h2>Credits</h2><img class="cav" src="${AVATAR}" alt="David">
-      <p><b>Gde je to?</b> was made by <b>David &amp; Claude</b>. Version 1.2.0.</p>
+      <p><b>Gde je to?</b> was made by <b>David &amp; Claude</b>. Version 1.2.1.</p>
       <p>Borders, rivers and lakes: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (public domain).<br>
       Roads, districts and big cities: Natural Earth. Towns: <a href="https://www.geonames.org" target="_blank" rel="noopener">GeoNames</a> (CC BY 4.0). Extra rivers and villages: &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors (ODbL). Elevation: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles</a> on AWS Open Data (SRTM, GMTED2010 and others).</p>
       <p>Place coordinates are approximate and good for learning, not navigating. Your progress is saved only in this browser. Anonymous visit counts are collected with GoatCounter (no cookies). A random anonymous player code (no name or personal data) is kept in your browser so repeat visits can be counted.${LB_ON?' If you add your name to the leaderboard, your name and score are stored publicly in a Google Firebase database.':''}</p></div>
@@ -1005,37 +1010,56 @@ function letterOptions(){
   if(selLetter&&!set.includes(selLetter))selLetter='';
   return set;
 }
-function drawAll(){
-  clearOver();allOn=true;studyId=null;
-  const list=pool();
-  const items=list.map(e=>{
+// quiz-place markers: shared by "Show on map" (gOver) and the persistent "Quiz places only" layer (gQuiz)
+function buildQuizItems(parent,list){
+  return list.map(e=>{
     const col=CC[e.cat];let c=null,x,y;
     if(e.cat==='reka'){
-      mk('path',{d:'M'+e.pts.map(p=>xy(p[0],p[1]).map(v=>v.toFixed(1)).join(' ')).join('L'),fill:'none',stroke:col,'stroke-width':3.6,'stroke-linecap':'round','stroke-linejoin':'round','vector-effect':'non-scaling-stroke',opacity:.95},gOver);
+      mk('path',{d:'M'+e.pts.map(p=>xy(p[0],p[1]).map(v=>v.toFixed(1)).join(' ')).join('L'),fill:'none',stroke:col,'stroke-width':3.6,'stroke-linecap':'round','stroke-linejoin':'round','vector-effect':'non-scaling-stroke',opacity:.95},parent);
       const m=e.pts[Math.floor(e.pts.length/2)];[x,y]=xy(m[0],m[1]);
     } else {
       [x,y]=xy(e.pts[0][0],e.pts[0][1]);
-      c=mk('circle',{cx:x,cy:y,fill:col,stroke:'#fff','stroke-width':1.6,'vector-effect':'non-scaling-stroke'},gOver);
+      c=mk('circle',{cx:x,cy:y,fill:col,stroke:'#fff','stroke-width':1.6,'vector-effect':'non-scaling-stroke'},parent);
     }
-    const t=mk('text',{'text-anchor':e.cat==='reka'?'middle':'start',fill:'var(--ink)'},gOver);
-    return {e,x,y,c,t,w:e.cat==='reka'?1:0};
+    const t=mk('text',{'text-anchor':e.cat==='reka'?'middle':'start',fill:'var(--ink)'},parent);
+    return {e,x,y,c,t};
   });
-  marks.push(upp=>{
-    const vb=viewBox(),boxes=[];
-    const hit=b=>boxes.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]);
-    items.forEach(it=>{
-      const fs=12.5,label=nm(it.e);it.t.textContent=label;
-      if(it.c)it.c.setAttribute('r',5.5*upp);
-      const px=(it.x-vb.x)/upp,py=(it.y-vb.y)/upp,tw=label.length*fs*0.58+4,th=fs*1.2;
-      const box=it.e.cat==='reka'?[px-tw/2,py-th-6,px+tw/2,py-6]:[px+8,py-th*0.6,px+8+tw,py+th*0.5];
-      const show=!hit(box);
-      it.t.style.display=show?'':'none';
-      if(show){boxes.push(box);
-        it.t.setAttribute('font-size',fs*upp);it.t.setAttribute('stroke-width',3.4*upp);
-        it.t.setAttribute('x',it.e.cat==='reka'?it.x:it.x+8*upp);it.t.setAttribute('y',it.e.cat==='reka'?it.y-9*upp:it.y+4*upp);}
-    });
+}
+function layoutQuizItems(items,upp){
+  const vb=viewBox(),boxes=[];
+  const hit=b=>boxes.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]);
+  items.forEach(it=>{
+    const fs=12.5,label=nm(it.e);it.t.textContent=label;
+    if(it.c)it.c.setAttribute('r',5.5*upp);
+    const px=(it.x-vb.x)/upp,py=(it.y-vb.y)/upp,tw=label.length*fs*0.58+4,th=fs*1.2;
+    const box=it.e.cat==='reka'?[px-tw/2,py-th-6,px+tw/2,py-6]:[px+8,py-th*0.6,px+8+tw,py+th*0.5];
+    const show=!hit(box);
+    it.t.style.display=show?'':'none';
+    if(show){boxes.push(box);
+      it.t.setAttribute('font-size',fs*upp);it.t.setAttribute('stroke-width',3.4*upp);
+      it.t.setAttribute('x',it.e.cat==='reka'?it.x:it.x+8*upp);it.t.setAttribute('y',it.e.cat==='reka'?it.y-9*upp:it.y+4*upp);}
   });
-  fitPts(list.map(e=>e.pts[Math.floor(e.pts.length/2)]),300);
+}
+function drawAll(){
+  clearOver();allOn=true;studyId=null;syncQuiz();
+  const list=pool(),items=buildQuizItems(gOver,list);
+  marks.push(upp=>layoutQuizItems(items,upp));
+  if(list.length)fitPts(list.map(e=>e.pts[Math.floor(e.pts.length/2)]),300);
+}
+// persistent layer (Options > Quiz places only)
+const gQuiz=mk('g',{'pointer-events':'none'},svg);svg.insertBefore(gQuiz,gOver);
+let qlItems=[],qlKey='',qlVis=false;
+if(!marks.includes(updateQuiz))marks.push(updateQuiz);
+function qlWanted(){return !!prog.layers.quizonly&&!allOn;}
+function updateQuiz(upp){
+  if(!qlVis)return;
+  const list=ELEMS,key='all';
+  if(key!==qlKey){qlKey=key;gQuiz.replaceChildren();qlItems=buildQuizItems(gQuiz,list);}
+  layoutQuizItems(qlItems,upp);
+}
+function syncQuiz(){
+  const w=qlWanted();gQuiz.style.display=w?'':'none';
+  if(w!==qlVis){qlVis=w;setLayers(true);}
 }
 
 // ---------- v1.2: PvP rooms (Firebase REST, polling) ----------
